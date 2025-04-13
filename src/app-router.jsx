@@ -6,6 +6,7 @@ import ProtectedRoute from './components/auth/protected-route'
 import App from './App'
 import LoginPage from './pages/login'
 import ProfilePage from './pages/profile'
+import MessagesPage from './pages/messages'
 
 function AppRouter() {
   return (
@@ -19,6 +20,7 @@ function AppRouter() {
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<App />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/messages" element={<MessagesPage />} />
           </Route>
           
           {/* Fallback route */}

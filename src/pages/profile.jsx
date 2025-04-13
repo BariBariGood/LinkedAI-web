@@ -1,5 +1,5 @@
 import { useAuth } from '../context/auth-context'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 function ProfilePage() {
   const { user, signOut } = useAuth()
@@ -12,6 +12,33 @@ function ProfilePage() {
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
+      <div className="navbar bg-base-100 shadow-md">
+        <div className="navbar-start">
+          <Link to="/" className="btn btn-ghost text-xl">LinkedAI</Link>
+        </div>
+        <div className="navbar-center hidden lg:flex">
+          <ul className="menu menu-horizontal px-1">
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/messages">Messages</Link></li>
+            <li><Link to="/profile" className="active">Profile</Link></li>
+          </ul>
+        </div>
+        <div className="navbar-end">
+          <div className="dropdown dropdown-end">
+            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
+              <div className="w-10 rounded-full bg-primary text-white grid place-items-center">
+                <span className="text-lg font-bold">{user?.email?.charAt(0).toUpperCase()}</span>
+              </div>
+            </div>
+            <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+              <li><Link to="/profile">Profile</Link></li>
+              <li><Link to="/messages">Messages</Link></li>
+              <li><button onClick={handleSignOut}>Logout</button></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
       <div className="container mx-auto px-4 py-16">
         <div className="card bg-base-100 shadow-xl max-w-2xl mx-auto">
           <div className="card-body">
@@ -45,9 +72,12 @@ function ProfilePage() {
             </div>
             
             <div className="card-actions justify-end">
-              <button className="btn btn-primary" onClick={() => navigate('/')}>
+              <Link to="/messages" className="btn btn-primary">
+                View Messages
+              </Link>
+              <Link to="/" className="btn btn-primary">
                 Go to Home
-              </button>
+              </Link>
               <button className="btn btn-outline" onClick={handleSignOut}>
                 Sign Out
               </button>
