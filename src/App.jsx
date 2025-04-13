@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import { useAuth } from './context/auth-context'
 import { getUserResume } from './lib/resume-service'
 
@@ -7,9 +6,10 @@ import { getUserResume } from './lib/resume-service'
 import ResumeUpload from './components/resume/resume-upload'
 import ResumeViewer from './components/resume/resume-viewer'
 import ResumeJsonEditor from './components/resume/resume-json-editor'
+import Navbar from './components/layout/Navbar'
 
 function App() {
-  const { user, signOut } = useAuth()
+  const { user } = useAuth()
   const [resumeData, setResumeData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -70,44 +70,7 @@ function App() {
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
-      {/* Navigation */}
-      <div className="bg-gray-900 text-white shadow-lg">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <Link to="/" className="text-xl font-bold">LinkedAI</Link>
-              <div className="hidden md:block ml-10">
-                <div className="flex space-x-4">
-                  <Link to="/" className="px-3 py-2 rounded-md text-sm font-medium bg-gray-800">
-                    Home
-                  </Link>
-                  <Link to="/messages" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
-                    Messages
-                  </Link>
-                  <Link to="/prompt-templates" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
-                    Templates
-                  </Link>
-                  <Link to="/jobs" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
-                    Jobs
-                  </Link>
-                  <Link to="/profile" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
-                    Profile
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div>
-              <div className="ml-4 flex items-center md:ml-6">
-                <div className="relative">
-                  <div className="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center">
-                    <span className="text-sm font-medium">{user?.email?.charAt(0).toUpperCase()}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Navbar />
       
       <div className="container mx-auto px-4 py-8">
         <header className="mb-8 text-center">
@@ -151,24 +114,20 @@ function App() {
             </div>
             
             <div className="lg:col-span-2 mt-4">
-              <div className="card bg-base-100 shadow-xl">
-                <div className="card-body">
-                  <h2 className="card-title">Upload a New Resume</h2>
-                  <p className="text-gray-600 mb-4">
-                    Want to upload a different resume? Your current resume will be replaced.
-                  </p>
-                  <div className="card-actions">
-                    <button 
-                      className="btn btn-outline"
-                      onClick={() => {
-                        console.log('User clicked to upload new resume');
-                        setResumeData(null);
-                      }}
-                    >
-                      Upload New Resume
-                    </button>
-                  </div>
-                </div>
+              <div className="bg-white rounded-lg shadow-xl p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-2">Upload a New Resume</h2>
+                <p className="text-gray-600 mb-4">
+                  Want to upload a different resume? Your current resume will be replaced.
+                </p>
+                <button 
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                  onClick={() => {
+                    console.log('User clicked to upload new resume');
+                    setResumeData(null);
+                  }}
+                >
+                  Upload New Resume
+                </button>
               </div>
             </div>
           </div>

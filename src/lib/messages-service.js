@@ -18,6 +18,7 @@ export const getGeneratedMessages = async (userId) => {
       throw error;
     }
 
+    console.log('Messages fetched from Supabase:', data);
     return data || [];
   } catch (error) {
     console.error('Error in getGeneratedMessages:', error);
@@ -30,16 +31,30 @@ export const getGeneratedMessages = async (userId) => {
  * @param {Object} messageData - The message data
  * @param {string} messageData.user_id - The user ID
  * @param {string} messageData.recipient_name - Name of the recipient
- * @param {string} messageData.recipient_linkedin_url - LinkedIn URL of the recipient
- * @param {string} messageData.message_text - The generated message text
- * @param {string} messageData.template_id - Optional template ID used
+ * @param {string} messageData.url - LinkedIn URL of the recipient (database field 'url')
+ * @param {string} messageData.message - The generated message text (database field 'message')
+ * @param {string} messageData.recipient_company - Optional company of recipient
+ * @param {string} messageData.recipient_title - Optional title of recipient
  * @returns {Promise<Object>} - The created message
  */
 export const createGeneratedMessage = async (messageData) => {
   try {
+    // Ensure the messageData uses the correct field names
+    const dataToInsert = {
+      user_id: messageData.user_id,
+      recipient_name: messageData.recipient_name,
+      message: messageData.message || messageData.message_text, // Support both field names during transition
+      url: messageData.url || messageData.recipient_linkedin_url, // Support both field names during transition
+      recipient_company: messageData.recipient_company,
+      recipient_title: messageData.recipient_title,
+      resume_id: messageData.resume_id
+    };
+
+    console.log('Creating new message with data:', dataToInsert);
+
     const { data, error } = await supabase
       .from('generated_messages')
-      .insert(messageData)
+      .insert(dataToInsert)
       .select()
       .single();
 

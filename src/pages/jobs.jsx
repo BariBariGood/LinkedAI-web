@@ -3,9 +3,10 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/auth-context'
 import { toast } from 'react-hot-toast'
 import { Link } from 'react-router-dom'
+import Navbar from '../components/layout/Navbar'
 
 function JobsPage() {
-  const { user, signOut } = useAuth()
+  const { user } = useAuth()
   const [loading, setLoading] = useState(true)
   const [jobs, setJobs] = useState([])
   const [filter, setFilter] = useState('all') // Filter options: all, active, applied, interview, rejected, offer
@@ -87,44 +88,7 @@ function JobsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
-      {/* Navigation */}
-      <div className="bg-gray-900 text-white shadow-lg">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <Link to="/" className="text-xl font-bold">LinkedAI</Link>
-              <div className="hidden md:block ml-10">
-                <div className="flex space-x-4">
-                  <Link to="/" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
-                    Home
-                  </Link>
-                  <Link to="/messages" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
-                    Messages
-                  </Link>
-                  <Link to="/prompt-templates" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
-                    Templates
-                  </Link>
-                  <Link to="/jobs" className="px-3 py-2 rounded-md text-sm font-medium bg-gray-800">
-                    Jobs
-                  </Link>
-                  <Link to="/profile" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
-                    Profile
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div>
-              <div className="ml-4 flex items-center md:ml-6">
-                <div className="relative">
-                  <div className="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center">
-                    <span className="text-sm font-medium">{user?.email?.charAt(0).toUpperCase()}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Navbar />
       
       <div className="container mx-auto px-4 py-8">
         <header className="mb-8 text-center">
@@ -252,7 +216,7 @@ function JobsPage() {
                               View Job
                             </a>
                           ) : (
-                            <span className="text-sm text-gray-400">No link</span>
+                            <span className="text-gray-400 text-sm">No URL</span>
                           )}
                         </td>
                       </tr>
@@ -263,9 +227,14 @@ function JobsPage() {
             )}
           </div>
           
-          <div className="mt-8 text-center text-sm text-gray-500">
-            <p>This page displays all your tracked job applications.</p>
-            <p>Jobs are automatically added when you apply through LinkedAI.</p>
+          {/* Add button */}
+          <div className="flex justify-end mt-6">
+            <button 
+              className="px-5 py-2 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors focus:outline-none"
+              // onClick={openAddJobModal}
+            >
+              Add New Job
+            </button>
           </div>
         </div>
       </div>
