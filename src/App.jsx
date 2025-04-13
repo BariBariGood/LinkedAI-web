@@ -70,69 +70,107 @@ function App() {
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
-      <div className="navbar bg-base-100 shadow-md">
-        <div className="navbar-start">
-          <Link to="/" className="btn btn-ghost text-xl">LinkedAI</Link>
-        </div>
-        <div className="navbar-center hidden lg:flex">
-          <ul className="menu menu-horizontal px-1">
-            <li><Link to="/" className="active">Home</Link></li>
-            <li><Link to="/messages">Messages</Link></li>
-            <li><Link to="/prompt-templates">Templates</Link></li>
-            <li><Link to="/profile">Profile</Link></li>
-          </ul>
-        </div>
-        <div className="navbar-end">
-          <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-              <div className="w-10 rounded-full bg-primary text-white grid place-items-center">
-                <span className="text-lg font-bold">{user?.email?.charAt(0).toUpperCase()}</span>
+      {/* Navigation */}
+      <div className="bg-gray-900 text-white shadow-lg">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <Link to="/" className="text-xl font-bold">LinkedAI</Link>
+              <div className="hidden md:block ml-10">
+                <div className="flex space-x-4">
+                  <Link to="/" className="px-3 py-2 rounded-md text-sm font-medium bg-gray-800">
+                    Home
+                  </Link>
+                  <Link to="/messages" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
+                    Messages
+                  </Link>
+                  <Link to="/prompt-templates" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
+                    Templates
+                  </Link>
+                  <Link to="/jobs" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
+                    Jobs
+                  </Link>
+                  <Link to="/profile" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
+                    Profile
+                  </Link>
+                </div>
               </div>
             </div>
-            <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-              <li><Link to="/profile">Profile</Link></li>
-              <li><Link to="/messages">Messages</Link></li>
-              <li><Link to="/prompt-templates">Templates</Link></li>
-              <li><button onClick={signOut}>Logout</button></li>
-            </ul>
+            <div>
+              <div className="ml-4 flex items-center md:ml-6">
+                <div className="relative">
+                  <div className="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center">
+                    <span className="text-sm font-medium">{user?.email?.charAt(0).toUpperCase()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
       
-      <div className="container mx-auto px-4 py-10">
-        <header className="mb-10 text-center">
-          <h1 className="text-4xl font-bold text-blue-800 mb-2">Resume Parser</h1>
-          <p className="text-lg text-blue-600">Upload your resume and we'll automatically parse it for you.</p>
+      <div className="container mx-auto px-4 py-8">
+        <header className="mb-8 text-center">
+          <h1 className="text-4xl font-bold text-indigo-700 mb-2">Resume Parser</h1>
+          <p className="text-lg text-indigo-600">Upload your resume and we'll automatically parse it for you.</p>
         </header>
         
         {error && (
-          <div className="alert alert-error mb-6 max-w-4xl mx-auto">
-            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <span>{error}</span>
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 max-w-4xl mx-auto">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
           </div>
         )}
         
         {isLoading ? (
           <div className="flex justify-center items-center h-48">
-            <span className="loading loading-spinner loading-lg"></span>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
           </div>
         ) : !resumeData ? (
           <div className="max-w-4xl mx-auto">
             <ResumeUpload onResumeProcessed={handleResumeProcessed} />
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto px-4">
-            <ResumeViewer 
-              resumeData={resumeData} 
-              onNewUpload={() => {
-                console.log('User clicked to upload new resume');
-                setResumeData(null);
-              }}
-            />
-            <ResumeJsonEditor 
-              resumeData={resumeData} 
-              onUpdate={handleResumeUpdate}
-            />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+            <div>
+              <ResumeViewer resumeData={resumeData} />
+            </div>
+            <div>
+              <ResumeJsonEditor 
+                resumeData={resumeData} 
+                onUpdate={handleResumeUpdate} 
+              />
+            </div>
+            
+            <div className="lg:col-span-2 mt-4">
+              <div className="card bg-base-100 shadow-xl">
+                <div className="card-body">
+                  <h2 className="card-title">Upload a New Resume</h2>
+                  <p className="text-gray-600 mb-4">
+                    Want to upload a different resume? Your current resume will be replaced.
+                  </p>
+                  <div className="card-actions">
+                    <button 
+                      className="btn btn-outline"
+                      onClick={() => {
+                        console.log('User clicked to upload new resume');
+                        setResumeData(null);
+                      }}
+                    >
+                      Upload New Resume
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

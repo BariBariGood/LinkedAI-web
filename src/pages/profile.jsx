@@ -1,94 +1,141 @@
-import { useAuth } from '../context/auth-context'
-import { useNavigate, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/auth-context';
 
-function ProfilePage() {
-  const { user, signOut } = useAuth()
-  const navigate = useNavigate()
-  
+function Profile() {
+  const { user, signOut } = useAuth();
+  const [loading, setLoading] = useState(false);
+
   const handleSignOut = async () => {
-    await signOut()
-    navigate('/login')
-  }
-  
+    setLoading(true);
+    try {
+      await signOut();
+      // Redirect happens automatically via auth context
+    } catch (error) {
+      console.error('Error signing out:', error);
+      alert('Failed to sign out');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
-      <div className="navbar bg-base-100 shadow-md">
-        <div className="navbar-start">
-          <Link to="/" className="btn btn-ghost text-xl">LinkedAI</Link>
-        </div>
-        <div className="navbar-center hidden lg:flex">
-          <ul className="menu menu-horizontal px-1">
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/messages">Messages</Link></li>
-            <li><Link to="/prompt-templates">Templates</Link></li>
-            <li><Link to="/profile" className="active">Profile</Link></li>
-          </ul>
-        </div>
-        <div className="navbar-end">
-          <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-              <div className="w-10 rounded-full bg-primary text-white grid place-items-center">
-                <span className="text-lg font-bold">{user?.email?.charAt(0).toUpperCase()}</span>
+      {/* Navigation */}
+      <div className="bg-gray-900 text-white shadow-lg">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <Link to="/" className="text-xl font-bold">LinkedAI</Link>
+              <div className="hidden md:block ml-10">
+                <div className="flex space-x-4">
+                  <Link to="/" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
+                    Home
+                  </Link>
+                  <Link to="/messages" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
+                    Messages
+                  </Link>
+                  <Link to="/prompt-templates" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
+                    Templates
+                  </Link>
+                  <Link to="/jobs" className="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">
+                    Jobs
+                  </Link>
+                  <Link to="/profile" className="px-3 py-2 rounded-md text-sm font-medium bg-gray-800">
+                    Profile
+                  </Link>
+                </div>
               </div>
             </div>
-            <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-              <li><Link to="/profile">Profile</Link></li>
-              <li><Link to="/messages">Messages</Link></li>
-              <li><Link to="/prompt-templates">Templates</Link></li>
-              <li><button onClick={handleSignOut}>Logout</button></li>
-            </ul>
+            <div>
+              <div className="ml-4 flex items-center md:ml-6">
+                <div className="relative">
+                  <div className="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center">
+                    <span className="text-sm font-medium">{user?.email?.charAt(0).toUpperCase()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
       
-      <div className="container mx-auto px-4 py-16">
-        <div className="card bg-base-100 shadow-xl max-w-2xl mx-auto">
-          <div className="card-body">
-            <h2 className="card-title text-2xl font-bold mb-6">Your Profile</h2>
-            
-            <div className="alert alert-success mb-6">
-              <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              <span>You are authenticated! The auth token is stored in your browser.</span>
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="border-b border-gray-200 px-8 py-6">
+              <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
             </div>
             
-            <div className="bg-base-200 p-4 rounded-lg mb-6">
-              <h3 className="font-semibold mb-2">User Information</h3>
-              <div className="overflow-x-auto">
-                <table className="table table-zebra w-full">
-                  <tbody>
-                    <tr>
-                      <td className="font-medium">User ID</td>
-                      <td className="font-mono text-sm">{user?.id}</td>
-                    </tr>
-                    <tr>
-                      <td className="font-medium">Email</td>
-                      <td>{user?.email}</td>
-                    </tr>
-                    <tr>
-                      <td className="font-medium">Last Sign In</td>
-                      <td>{new Date(user?.last_sign_in_at).toLocaleString()}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            
-            <div className="card-actions justify-end">
-              <Link to="/messages" className="btn btn-primary">
-                View Messages
-              </Link>
-              <Link to="/" className="btn btn-primary">
-                Go to Home
-              </Link>
-              <button className="btn btn-outline" onClick={handleSignOut}>
-                Sign Out
-              </button>
+            <div className="px-8 py-6 space-y-6">
+              {user ? (
+                <>
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-800 mb-2">Account Information</h2>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Email</p>
+                          <p className="text-base font-medium text-gray-900">{user.email}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">User ID</p>
+                          <p className="text-base font-medium text-gray-900">{user.id}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Last Sign In</p>
+                          <p className="text-base font-medium text-gray-900">
+                            {new Date(user.last_sign_in_at).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-800 mb-2">Authentication Status</h2>
+                    <div className="bg-green-50 rounded-lg p-4">
+                      <p className="text-green-700">
+                        <span className="inline-flex items-center mr-2">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                        </span>
+                        You are authenticated and your session is active.
+                      </p>
+                      <p className="text-sm text-gray-600 mt-2">
+                        The authentication token is stored securely in your browser using localStorage.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-4">
+                    <button
+                      onClick={handleSignOut}
+                      disabled={loading}
+                      className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50"
+                    >
+                      {loading ? 'Signing Out...' : 'Sign Out'}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500 mb-4">You are not signed in</p>
+                  <Link
+                    to="/login"
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default ProfilePage 
+export default Profile; 

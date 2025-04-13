@@ -8,6 +8,7 @@ import LoginPage from './pages/login'
 import ProfilePage from './pages/profile'
 import MessagesPage from './pages/messages'
 import PromptTemplatesPage from './pages/prompt-templates'
+import JobsPage from './pages/jobs'
 
 function AppRouter() {
   return (
@@ -23,6 +24,7 @@ function AppRouter() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/messages" element={<MessagesPage />} />
             <Route path="/prompt-templates" element={<PromptTemplatesPage />} />
+            <Route path="/jobs" element={<JobsPage />} />
           </Route>
           
           {/* Fallback route */}
