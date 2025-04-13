@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { updateResumeData } from '../../lib/resume-service';
+import { toast } from 'react-hot-toast';
 
 function ResumeJsonEditor({ resumeData, onUpdate }) {
   const [jsonString, setJsonString] = useState('');
@@ -19,6 +20,7 @@ function ResumeJsonEditor({ resumeData, onUpdate }) {
 
   const handleCancel = () => {
     setIsEditing(false);
+    // Reset to original data
     setJsonString(JSON.stringify(resumeData.parsed_data, null, 2));
     setError(null);
   };
@@ -29,18 +31,31 @@ function ResumeJsonEditor({ resumeData, onUpdate }) {
       setError(null);
 
       // Validate JSON
-      const parsedJson = JSON.parse(jsonString);
+      let parsedJson;
+      try {
+        parsedJson = JSON.parse(jsonString);
+      } catch (err) {
+        throw new Error('Invalid JSON format. Please check your syntax.');
+      }
+      
+      console.log('Saving resume data to Supabase:', parsedJson);
       
       // Update in database
       const updatedResume = await updateResumeData(resumeData.id, parsedJson);
       
+      if (!updatedResume) {
+        throw new Error('Failed to update resume data in the database');
+      }
+      
       // Notify parent component
       onUpdate(updatedResume);
       
+      toast.success('Resume data updated successfully');
       setIsEditing(false);
     } catch (err) {
       console.error('Error saving JSON:', err);
-      setError(err.message || 'Invalid JSON format');
+      setError(err.message || 'An error occurred while saving the resume data');
+      toast.error(err.message || 'Failed to save changes');
     } finally {
       setIsSaving(false);
     }
@@ -48,12 +63,6 @@ function ResumeJsonEditor({ resumeData, onUpdate }) {
 
   const handleChange = (e) => {
     setJsonString(e.target.value);
-  };
-
-  const handleGenerateEmail = () => {
-    // This would be connected to an email generation feature
-    console.log('Generate email based on resume data');
-    alert('Email generation feature would go here');
   };
 
   if (!resumeData) {
@@ -66,14 +75,16 @@ function ResumeJsonEditor({ resumeData, onUpdate }) {
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-baseline">
             <h2 className="text-2xl font-bold text-blue-600 mr-2">Parsed Resume Data</h2>
-            <p className="text-sm text-transparent">placeholder</p>
+            <p className="text-sm text-gray-500">(JSON format)</p>
           </div>
-          <button
-            className="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors w-32"
-            onClick={handleEdit}
-          >
-            Edit JSON
-          </button>
+          {!isEditing && (
+            <button
+              className="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors w-32"
+              onClick={handleEdit}
+            >
+              Edit JSON
+            </button>
+          )}
         </div>
 
         {error && (
@@ -85,10 +96,11 @@ function ResumeJsonEditor({ resumeData, onUpdate }) {
         {isEditing ? (
           <div>
             <textarea
-              className="w-full h-96 p-4 font-mono text-sm bg-gray-50 border border-gray-200 rounded-lg"
+              className="w-full h-96 p-4 font-mono text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 shadow-sm"
               value={jsonString}
               onChange={handleChange}
               disabled={isSaving}
+              spellCheck="false"
             />
             <div className="flex justify-end gap-2 mt-4">
               <button
@@ -115,19 +127,9 @@ function ResumeJsonEditor({ resumeData, onUpdate }) {
             </div>
           </div>
         ) : (
-          <>
-            <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 font-mono text-sm overflow-auto h-96">
-              <pre className="whitespace-pre-wrap text-gray-700">{jsonString}</pre>
-            </div>
-            <div className="mt-6 flex justify-end">
-              <button
-                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
-                onClick={handleGenerateEmail}
-              >
-                Generate Email
-              </button>
-            </div>
-          </>
+          <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 font-mono text-sm overflow-auto h-96">
+            <pre className="whitespace-pre-wrap text-gray-900">{jsonString}</pre>
+          </div>
         )}
       </div>
     </div>
