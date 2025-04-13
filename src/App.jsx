@@ -78,6 +78,7 @@ function App() {
           <ul className="menu menu-horizontal px-1">
             <li><Link to="/" className="active">Home</Link></li>
             <li><Link to="/messages">Messages</Link></li>
+            <li><Link to="/prompt-templates">Templates</Link></li>
             <li><Link to="/profile">Profile</Link></li>
           </ul>
         </div>
@@ -91,6 +92,7 @@ function App() {
             <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
               <li><Link to="/profile">Profile</Link></li>
               <li><Link to="/messages">Messages</Link></li>
+              <li><Link to="/prompt-templates">Templates</Link></li>
               <li><button onClick={signOut}>Logout</button></li>
             </ul>
           </div>
