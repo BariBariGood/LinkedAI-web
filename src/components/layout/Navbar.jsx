@@ -29,12 +29,12 @@ function Navbar() {
                 >
                   Messages
                 </Link>
-                <Link 
+                {/* <Link 
                   to="/prompt-templates" 
                   className={`px-3 py-2 rounded-md text-sm font-medium ${isActiveRoute('/prompt-templates') ? 'bg-gray-800' : 'hover:bg-gray-800'}`}
                 >
                   Templates
-                </Link>
+                </Link> */}
                 <Link 
                   to="/jobs" 
                   className={`px-3 py-2 rounded-md text-sm font-medium ${isActiveRoute('/jobs') ? 'bg-gray-800' : 'hover:bg-gray-800'}`}
