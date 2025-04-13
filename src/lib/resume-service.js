@@ -1,4 +1,8 @@
 import { supabase } from './supabase';
+import * as pdfjsLib from 'pdfjs-dist/build/pdf.min.mjs';
+
+// Initialize PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).href;
 
 /**
  * Upload a resume file to Supabase storage
@@ -31,114 +35,52 @@ export const uploadResumeFile = async (file, userId) => {
 };
 
 /**
- * Simple resume parser - in a real app, you would use a more sophisticated parsing service
- * This is a basic implementation that extracts text and attempts to identify sections
+ * Simple resume parser - extracts raw text from PDF files
  */
 export const parseResume = async (file) => {
   console.log('Starting resume parsing for file:', { fileName: file.name, fileType: file.type, fileSize: file.size });
   
-  // This is a simplified implementation. In a real app, you'd use a proper parsing service or API.
   try {
-    // For now, we'll create a basic structure and extract text from the file
-    console.log('Determining file type and parsing strategy');
     let text = '';
-    let parsedData = {};
     
     // PDF files can't be parsed as plain text with FileReader
     if (file.type === 'application/pdf') {
-      console.log('PDF file detected - using placeholder data since PDF parsing requires specialized libraries');
+      console.log('PDF file detected - using PDF.js to parse content');
       
-      // For PDF files, create a placeholder parsed data structure directly
-      // In a real app, you'd use a PDF parsing library like pdf.js
-      const fileName = file.name;
-      const fileNameWithoutExt = fileName.replace(/\.pdf$/i, '');
+      // Convert file to ArrayBuffer
+      const arrayBuffer = await file.arrayBuffer();
       
-      // Extract a potential name from the filename
-      const nameParts = fileNameWithoutExt.split(/[\s_-]+/);
-      let possibleName = fileNameWithoutExt;
+      // Load the PDF document
+      const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
       
-      // Try to guess if the filename contains a name
-      if (nameParts.length >= 2) {
-        possibleName = nameParts.join(' ');
+      // Extract text from all pages
+      const numPages = pdf.numPages;
+      const textPromises = [];
+      
+      for (let i = 1; i <= numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        const pageText = content.items.map(item => item.str).join(' ');
+        textPromises.push(pageText);
       }
       
-      parsedData = {
-        basicInfo: {
-          name: possibleName,
-          email: '',
-          phone: '',
-          location: ''
-        },
-        education: [
-          { institution: 'Education details will appear here', degree: 'Degree', dates: 'Date range' }
-        ],
-        experience: [
-          { company: 'Work experience details will appear here', position: 'Position', dates: 'Date range', description: 'Description of responsibilities' }
-        ],
-        skills: ['Skill 1', 'Skill 2', 'Skill 3'],
-        rawText: `PDF File: ${fileName}\n\nPDF content requires specialized parsing libraries. Please edit this JSON with your resume information.`
-      };
+      // Combine text from all pages
+      const pageTexts = await Promise.all(textPromises);
+      text = pageTexts.join('\n\n');
       
-      console.log('Created placeholder data for PDF file:', parsedData);
-      return parsedData;
+      console.log('Successfully extracted text from PDF');
     } else {
       // For text-based files, use the regular parsing
       console.log('Text-based file detected, attempting to read content');
       text = await readFileAsText(file);
       console.log('Successfully read file as text, length:', text.length);
-      
-      // Basic parsing logic to identify common resume sections
-      console.log('Extracting basic info from text');
-      const basicInfo = extractBasicInfo(text);
-      console.log('Extracted basic info:', basicInfo);
-      
-      console.log('Extracting education section');
-      const education = extractSection(text, 'education', 'experience');
-      console.log('Extracted education:', education);
-      
-      console.log('Extracting experience section');
-      const experience = extractSection(text, 'experience', 'skills');
-      console.log('Extracted experience:', experience);
-      
-      console.log('Extracting skills section');
-      const skills = extractSection(text, 'skills', null);
-      console.log('Extracted skills:', skills);
-      
-      parsedData = {
-        basicInfo,
-        education,
-        experience,
-        skills,
-        rawText: text,
-      };
     }
     
     console.log('Parsing completed successfully');
-    return parsedData;
+    return { rawText: text };
   } catch (error) {
     console.error('Error parsing resume:', error);
-    console.log('Returning default data structure due to parsing error');
-    
-    // Create a meaningful fallback with the filename as a reference
-    const fileName = file.name;
-    const nameGuess = fileName.split('.')[0].replace(/[_-]/g, ' ');
-    
-    return {
-      basicInfo: { 
-        name: nameGuess || 'Your Name', 
-        email: 'your.email@example.com', 
-        phone: '(123) 456-7890', 
-        location: 'City, State' 
-      },
-      education: [
-        { institution: 'University/School Name', degree: 'Degree/Certification', dates: 'Start - End Date' }
-      ],
-      experience: [
-        { company: 'Company Name', position: 'Job Title', dates: 'Start - End Date', description: 'Job description and responsibilities' }
-      ],
-      skills: ['Skill 1', 'Skill 2', 'Skill 3'],
-      rawText: `Failed to parse resume: ${error.message}\n\nPlease edit this JSON data manually with your resume information.`,
-    };
+    throw error;
   }
 };
 
