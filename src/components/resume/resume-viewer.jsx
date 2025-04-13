@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getResumeFileUrl } from '../../lib/resume-service';
 
-function ResumeViewer({ resumeData }) {
+function ResumeViewer({ resumeData, onNewUpload }) {
   const [fileUrl, setFileUrl] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,14 +19,11 @@ function ResumeViewer({ resumeData }) {
         setError(null);
         console.log('Loading resume file with URL:', resumeData.file_url);
 
-        // For txt files, we could use the stored URL directly, but for consistency
-        // we'll always get a fresh signed URL
         try {
           // Get the file path - it should be just the path without query params
           const filePath = resumeData.file_url.split('?')[0];
           
           // For storage paths, they should be in the format 'user-id/filename'
-          // If we need to extract just the last parts of the path:
           const pathParts = filePath.split('/');
           const lastParts = pathParts.length > 2 
             ? pathParts.slice(-2).join('/') // Get just the user-id/filename part
@@ -57,62 +54,62 @@ function ResumeViewer({ resumeData }) {
     return null;
   }
 
+  const handleNewUpload = () => {
+    if (onNewUpload) onNewUpload();
+    else window.location.reload();
+  };
+
   return (
-    <div className="card bg-base-100 shadow-xl w-full">
-      <div className="card-body">
-        <h2 className="card-title">Your Resume</h2>
-        <p className="text-gray-600 mb-4">
-          {resumeData.filename}
-        </p>
+    <div className="w-full bg-white rounded-lg shadow-md">
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-baseline">
+            <h2 className="text-2xl font-bold text-blue-600 mr-2">Your Resume</h2>
+            <p className="text-sm text-gray-500 truncate max-w-xs">{resumeData.filename}</p>
+          </div>
+          <button
+            onClick={handleNewUpload}
+            className="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors w-32"
+          >
+            New Upload
+          </button>
+        </div>
 
         {error && (
-          <div className="alert alert-error mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <span>{error}</span>
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
+            <p>{error}</p>
           </div>
         )}
 
         {isLoading ? (
-          <div className="flex justify-center items-center h-48">
-            <span className="loading loading-spinner loading-lg"></span>
+          <div className="flex justify-center items-center h-96 bg-gray-100 rounded-lg">
+            <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : (
-          <div className="bg-base-200 rounded-lg p-4 overflow-hidden">
+          <div className="bg-gray-100 rounded-lg h-96 overflow-hidden">
             {fileUrl ? (
               resumeData.file_type === 'application/pdf' ? (
                 <iframe
                   src={fileUrl}
-                  className="w-full h-96 border-0"
+                  className="w-full h-full border-0"
                   title="Resume Preview"
                 />
-              ) : resumeData.file_type === 'text/plain' ? (
-                <div className="font-mono text-sm whitespace-pre-wrap overflow-auto max-h-96">
-                  {resumeData.parsed_data?.rawText || 'No text content available'}
-                </div>
               ) : (
-                <div className="text-center p-4">
-                  <p>Preview not available for this file type.</p>
+                <div className="flex flex-col items-center justify-center h-full p-4">
+                  <p className="text-gray-700 mb-4">Preview not available for this file type.</p>
                   <a 
                     href={fileUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="btn btn-primary btn-sm mt-2"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                   >
                     Download Resume
                   </a>
                 </div>
               )
             ) : (
-              <div className="text-center p-4">
-                <p>Unable to load resume file preview.</p>
-                {resumeData.parsed_data?.rawText && (
-                  <div className="mt-4 p-4 bg-base-300 rounded overflow-auto max-h-64">
-                    <p className="font-mono text-sm whitespace-pre-wrap">
-                      {resumeData.parsed_data.rawText.substring(0, 300)}
-                      {resumeData.parsed_data.rawText.length > 300 ? '...' : ''}
-                    </p>
-                  </div>
-                )}
+              <div className="flex flex-col items-center justify-center h-full p-4">
+                <p className="text-gray-700 mb-4">No preview available for this file.</p>
               </div>
             )}
           </div>

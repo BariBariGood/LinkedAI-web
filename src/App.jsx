@@ -121,38 +121,18 @@ function App() {
             <ResumeUpload onResumeProcessed={handleResumeProcessed} />
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
-            <div>
-              <ResumeViewer resumeData={resumeData} />
-            </div>
-            <div>
-              <ResumeJsonEditor 
-                resumeData={resumeData} 
-                onUpdate={handleResumeUpdate} 
-              />
-            </div>
-            
-            <div className="lg:col-span-2 mt-4">
-              <div className="card bg-base-100 shadow-xl">
-                <div className="card-body">
-                  <h2 className="card-title">Upload a New Resume</h2>
-                  <p className="text-gray-600 mb-4">
-                    Want to upload a different resume? Your current resume will be replaced.
-                  </p>
-                  <div className="card-actions">
-                    <button 
-                      className="btn btn-outline"
-                      onClick={() => {
-                        console.log('User clicked to upload new resume');
-                        setResumeData(null);
-                      }}
-                    >
-                      Upload New Resume
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto px-4">
+            <ResumeViewer 
+              resumeData={resumeData} 
+              onNewUpload={() => {
+                console.log('User clicked to upload new resume');
+                setResumeData(null);
+              }}
+            />
+            <ResumeJsonEditor 
+              resumeData={resumeData} 
+              onUpdate={handleResumeUpdate}
+            />
           </div>
         )}
       </div>

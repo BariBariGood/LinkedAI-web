@@ -38,6 +38,7 @@ function ResumeUpload({ onResumeProcessed }) {
         throw new Error('You must be logged in to upload a resume. Please refresh and try again.');
       }
 
+      // Upload process (all steps)
       // 1. Parse the resume
       console.log('Step 1: Parse resume');
       let parsedData;
@@ -113,22 +114,6 @@ function ResumeUpload({ onResumeProcessed }) {
     } catch (err) {
       console.error('Error uploading resume:', err);
       let errorMessage = err.message || 'Failed to upload resume';
-      
-      // Add more context to common errors
-      if (err.code === '23505') {
-        errorMessage = 'A resume with this name already exists.';
-      } else if (err.code === 'PGRST301') {
-        errorMessage = 'You do not have permission to upload resumes.';
-      } else if (err.code === '23503') {
-        errorMessage = 'Authentication issue. Please log out and log back in.';
-      } else if (err.status === 406) {
-        errorMessage = 'Server could not accept the format of the data provided. Please try a different file.';
-      } else if (err.message?.includes('storage')) {
-        errorMessage = 'Storage error: ' + err.message;
-      } else if (err.message?.includes('JSON')) {
-        errorMessage = 'Error parsing resume data: ' + err.message;
-      }
-      
       setError(errorMessage);
     } finally {
       setIsUploading(false);
@@ -136,49 +121,86 @@ function ResumeUpload({ onResumeProcessed }) {
   };
 
   return (
-    <div className="card bg-base-100 shadow-xl w-full">
-      <div className="card-body">
-        <h2 className="card-title">Upload Your Resume</h2>
-        <p className="text-gray-600 mb-4">
-          Upload your resume in PDF, DOCX, or TXT format and we'll automatically parse it.
-        </p>
+    <div className="w-full bg-blue-50 rounded-lg overflow-hidden shadow-md">
+      <div className="p-6">
+        <div className="flex items-center mb-6">
+          <div className="w-12 h-12 flex-shrink-0 mr-4">
+            <svg viewBox="0 0 64 64" className="w-full h-full">
+              <rect x="4" y="4" width="56" height="56" rx="4" fill="#2563EB" />
+              <rect x="44" y="4" width="16" height="16" rx="0 4 0 4" fill="#FBBF24" />
+              <line x1="16" y1="24" x2="48" y2="24" stroke="white" strokeWidth="3" strokeLinecap="round" />
+              <line x1="16" y1="32" x2="48" y2="32" stroke="white" strokeWidth="3" strokeLinecap="round" />
+              <line x1="16" y1="40" x2="48" y2="40" stroke="white" strokeWidth="3" strokeLinecap="round" />
+              <line x1="16" y1="48" x2="36" y2="48" stroke="white" strokeWidth="3" strokeLinecap="round" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-blue-800">Resume Parser</h2>
+            <p className="text-blue-600">Upload your resume to extract the text</p>
+          </div>
+        </div>
 
         {error && (
-          <div className="alert alert-error mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <span>{error}</span>
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
+            <p>{error}</p>
           </div>
         )}
 
-        <div className="form-control mb-4">
-          <label className="label">
-            <span className="label-text">Select Resume File</span>
-          </label>
-          <input
-            type="file"
-            id="resume-upload"
-            className="file-input file-input-bordered w-full"
-            accept=".pdf,.docx,.doc,.txt"
-            onChange={handleFileChange}
-            disabled={isUploading}
-          />
-        </div>
-
-        <div className="card-actions justify-end">
-          <button
-            className="btn btn-primary"
-            onClick={handleUpload}
-            disabled={!file || isUploading}
-          >
-            {isUploading ? (
-              <>
-                <span className="loading loading-spinner"></span>
-                Uploading...
-              </>
-            ) : (
-              'Upload & Parse Resume'
+        <div className="bg-white rounded-lg p-6 shadow-inner">
+          <div className="mb-6">
+            <p className="text-gray-700 mb-2">
+              Upload your resume in PDF, DOCX, or TXT format. Our parser will extract the text content.
+            </p>
+          </div>
+          
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select Resume File
+            </label>
+            <div className="flex items-center justify-center w-full">
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-blue-300 border-dashed rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100 transition-colors">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg className="w-8 h-8 mb-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  </svg>
+                  <p className="mb-1 text-sm text-blue-500">
+                    <span className="font-semibold">Click to upload</span> or drag and drop
+                  </p>
+                  <p className="text-xs text-blue-500">PDF, DOCX, or TXT files</p>
+                </div>
+                <input 
+                  id="resume-upload" 
+                  type="file" 
+                  className="hidden" 
+                  accept=".pdf,.docx,.doc,.txt"
+                  onChange={handleFileChange}
+                  disabled={isUploading}
+                />
+              </label>
+            </div>
+            {file && (
+              <div className="mt-3 text-sm text-gray-600">
+                Selected: <span className="font-medium">{file.name}</span> ({(file.size / 1024).toFixed(1)} KB)
+              </div>
             )}
-          </button>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+              onClick={handleUpload}
+              disabled={!file || isUploading}
+            >
+              {isUploading ? (
+                <div className="flex items-center">
+                  <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Processing...</span>
+                </div>
+              ) : (
+                'Parse Resume'
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

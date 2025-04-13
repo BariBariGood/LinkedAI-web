@@ -50,78 +50,85 @@ function ResumeJsonEditor({ resumeData, onUpdate }) {
     setJsonString(e.target.value);
   };
 
+  const handleGenerateEmail = () => {
+    // This would be connected to an email generation feature
+    console.log('Generate email based on resume data');
+    alert('Email generation feature would go here');
+  };
+
   if (!resumeData) {
     return null;
   }
 
   return (
-    <div className="card bg-base-100 shadow-xl w-full">
-      <div className="card-body">
+    <div className="w-full bg-white rounded-lg shadow-md">
+      <div className="p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="card-title">Parsed Resume Data</h2>
-          {!isEditing ? (
-            <button
-              className="btn btn-primary btn-sm"
-              onClick={handleEdit}
-            >
-              Edit JSON
-            </button>
-          ) : (
-            <div className="flex gap-2">
+          <div className="flex items-baseline">
+            <h2 className="text-2xl font-bold text-blue-600 mr-2">Parsed Resume Data</h2>
+            <p className="text-sm text-transparent">placeholder</p>
+          </div>
+          <button
+            className="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors w-32"
+            onClick={handleEdit}
+          >
+            Edit JSON
+          </button>
+        </div>
+
+        {error && (
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded">
+            <p>{error}</p>
+          </div>
+        )}
+
+        {isEditing ? (
+          <div>
+            <textarea
+              className="w-full h-96 p-4 font-mono text-sm bg-gray-50 border border-gray-200 rounded-lg"
+              value={jsonString}
+              onChange={handleChange}
+              disabled={isSaving}
+            />
+            <div className="flex justify-end gap-2 mt-4">
               <button
-                className="btn btn-outline btn-sm"
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
                 onClick={handleCancel}
                 disabled={isSaving}
               >
                 Cancel
               </button>
               <button
-                className="btn btn-primary btn-sm"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 onClick={handleSave}
                 disabled={isSaving}
               >
                 {isSaving ? (
-                  <>
-                    <span className="loading loading-spinner loading-xs"></span>
-                    Saving...
-                  </>
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Saving...</span>
+                  </div>
                 ) : (
                   'Save'
                 )}
               </button>
             </div>
-          )}
-        </div>
-
-        {error && (
-          <div className="alert alert-error mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            <span>{error}</span>
           </div>
-        )}
-
-        <div className="form-control mb-2">
-          {isEditing ? (
-            <textarea
-              className="textarea textarea-bordered font-mono text-sm h-96"
-              value={jsonString}
-              onChange={handleChange}
-              disabled={isSaving}
-            />
-          ) : (
-            <div className="bg-base-200 p-4 rounded-lg overflow-auto max-h-96">
-              <pre className="text-sm font-mono whitespace-pre-wrap break-words">
-                {jsonString}
-              </pre>
+        ) : (
+          <>
+            <div className="bg-gray-50 rounded-lg border border-gray-100 p-4 font-mono text-sm overflow-auto h-96">
+              <pre className="whitespace-pre-wrap text-gray-700">{jsonString}</pre>
             </div>
-          )}
-        </div>
-
-        <div className="text-sm text-gray-500 mt-2">
-          <p>
-            You can edit the JSON data above to correct or update any information that wasn't properly parsed.
-          </p>
-        </div>
+            <div className="mt-6 flex justify-end">
+              <button
+                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+                onClick={handleGenerateEmail}
+              >
+                Generate Email
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
